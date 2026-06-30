@@ -1,16 +1,16 @@
 name: huluxia_signin
 on:
-  schedule:    # 定时触发
-    - cron: '0 16 * * *'  # 24点
-  workflow_dispatch:  # 支持手动触发
+  schedule:    # 定时触发，UTC16点=北京时间次日0点
+    - cron: '0 16 * * *'
+  workflow_dispatch:  # 手动触发
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # 👈 消除 Node 20 警告
+        uses: actions/checkout@v3
       - name: '初始化python环境'
-        uses: actions/setup-python@v5 # 👈 消除 Node 20 警告
+        uses: actions/setup-python@v4
         with:
            python-version: 3.10.11
       - name: '安装依赖'
@@ -20,11 +20,8 @@ jobs:
       - name: '开始运行'
         id: signin-outputs
         env:
-          # 直接硬编码指定推送方式为企业微信，避免依赖 Secret 产生意外
-          NOTIFIER_TYPE: wechat
-          # ✅ 取消注释并读取机器人 webhook 地址
-          WECHAT_ROBOT_URL: ${{ secrets.WECHAT_ROBOT_URL }}
-          # EMAIL_CONFIG: ${{ secrets.EMAIL_CONFIG }}
+          NOTIFIER_TYPE: ${{ secrets.NOTIFIER_TYPE }} 
+          WECHAT_ROBOT_URL: ${{ secrets.WECHAT_ROBOT_URL }} # 取消注释启用企业微信机器人
           ACCOUNTS: ${{ secrets.ACCOUNTS }}
         run: |
           python ./main.py
